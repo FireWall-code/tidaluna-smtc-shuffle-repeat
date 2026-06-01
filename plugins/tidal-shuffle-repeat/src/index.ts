@@ -141,6 +141,7 @@ ensureChromiumDisabled()
 			}
 			if (req.shuffle != null) PlayState.setShuffle(req.shuffle);
 			if (req.repeat != null) PlayState.setRepeatMode(req.repeat as never);
+			if (req.position != null) PlayState.seek(req.position);
 			if (req.button === "play") PlayState.play();
 			else if (req.button === "pause") PlayState.pause();
 			else if (req.button === "next") PlayState.next();

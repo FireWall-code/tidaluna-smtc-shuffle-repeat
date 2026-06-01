@@ -13,7 +13,12 @@ interface SmtcNative {
 	hello(): string;
 	findOwnWindow(): { hwnd: number; title: string };
 	armShuffleRepeat(hwnd: number): string;
-	pollRequests(): { shuffle: boolean | null; repeat: number | null; button: string | null };
+	pollRequests(): {
+		shuffle: boolean | null;
+		repeat: number | null;
+		button: string | null;
+		position: number | null;
+	};
 	setShuffleState(enabled: boolean): void;
 	setRepeatState(tidalMode: number): void;
 	updateMetadata(title: string, artist: string, album: string, coverUrl: string): void;
@@ -150,11 +155,12 @@ export async function pollRequests(): Promise<{
 	shuffle: boolean | null;
 	repeat: number | null;
 	button: string | null;
+	position: number | null;
 }> {
 	try {
 		return load().pollRequests();
 	} catch {
-		return { shuffle: null, repeat: null, button: null };
+		return { shuffle: null, repeat: null, button: null, position: null };
 	}
 }
 

@@ -91,7 +91,8 @@ use windows::core::{Result as WinResult, HSTRING};
 use windows::Foundation::{TimeSpan, TypedEventHandler, Uri};
 use windows::Media::{
     AutoRepeatModeChangeRequestedEventArgs, MediaPlaybackAutoRepeatMode, MediaPlaybackStatus,
-    MediaPlaybackType, ShuffleEnabledChangeRequestedEventArgs, SystemMediaTransportControls,
+    MediaPlaybackType, PlaybackPositionChangeRequestedEventArgs,
+    ShuffleEnabledChangeRequestedEventArgs, SystemMediaTransportControls,
     SystemMediaTransportControlsButton, SystemMediaTransportControlsButtonPressedEventArgs,
     SystemMediaTransportControlsTimelineProperties,
 };
@@ -109,6 +110,7 @@ struct Pending {
     shuffle: Option<bool>,
     repeat: Option<i32>,
     button: Option<String>,
+    position: Option<f64>,
 }
 
 fn pending() -> &'static Mutex<Pending> {
@@ -195,6 +197,18 @@ fn arm_inner(hwnd: i64) -> WinResult<()> {
         },
     ))?;
 
+    // Seek requests from the flyout's progress bar (TimeSpan is in 100ns ticks).
+    smtc.PlaybackPositionChangeRequested(&TypedEventHandler::new(
+        move |_s: &Option<SystemMediaTransportControls>,
+              args: &Option<PlaybackPositionChangeRequestedEventArgs>| {
+            if let Some(a) = args {
+                let ts = a.RequestedPlaybackPosition()?;
+                pending().lock().unwrap().position = Some(ts.Duration as f64 / 10_000_000.0);
+            }
+            Ok(())
+        },
+    ))?;
+
     let _ = BOUND_HWND.set(hwnd);
     Ok(())
 }
@@ -213,6 +227,7 @@ pub struct PendingRequests {
     pub shuffle: Option<bool>,
     pub repeat: Option<i32>,
     pub button: Option<String>,
+    pub position: Option<f64>,
 }
 
 /// Drain any control requests received from Windows since the last poll.
@@ -225,6 +240,7 @@ pub fn poll_requests() -> PendingRequests {
         shuffle: p.shuffle.take(),
         repeat: p.repeat.take(),
         button: p.button.take(),
+        position: p.position.take(),
     }
 }
 
