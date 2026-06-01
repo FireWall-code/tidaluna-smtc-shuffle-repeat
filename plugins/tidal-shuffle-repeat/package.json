@@ -2,7 +2,7 @@
 	"name": "TIDAL-Shuffle-Repeat-for-Flyouts",
 	"description": "Exposes TIDAL shuffle and repeat to the Windows System Media Transport Controls (SMTC), so volume/media flyouts like FluentFlyout can toggle them. Bidirectional sync.",
 	"author": {
-		"name": "FireWall-code",
+		"name": "FireWall",
 		"url": "https://github.com/FireWall-code",
 		"avatarUrl": "https://avatars.githubusercontent.com/u/69877709?v=4"
 	},
