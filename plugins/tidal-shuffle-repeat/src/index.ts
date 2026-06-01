@@ -59,18 +59,33 @@ const pushMetadata = async (mi: any) => {
 		} catch {
 			/* ignore */
 		}
-		const albumRaw = await mi?.album?.();
-		const album = String(albumRaw?.title ?? albumRaw ?? "");
-		let cover = "";
+		const albumObj = await mi?.album?.();
+		const album = String((await albumObj?.title?.()) ?? "");
+		let albumArtist = "";
 		try {
-			cover = String((await mi?.coverUrl?.(640)) ?? (await mi?.coverUrl?.()) ?? "");
+			const aa = await albumObj?.artist?.();
+			albumArtist = String(aa?.name ?? "");
 		} catch {
 			/* ignore */
 		}
-		await updateMetadata(title, artist, album, cover);
+		const trackNumber = Number(mi?.trackNumber ?? 0) || 0;
+		const albumTrackCount = Number(albumObj?.numberOfTracks ?? 0) || 0;
+		let genre = "";
 		try {
-			const raw = typeof mi?.duration === "function" ? await mi.duration() : mi?.duration;
-			const d = Number(raw);
+			genre = String(albumObj?.genre ?? "");
+		} catch {
+			/* ignore */
+		}
+		let cover = "";
+		try {
+			cover = String((await mi?.coverUrl?.()) ?? "");
+		} catch {
+			/* ignore */
+		}
+		await updateMetadata(title, artist, album, cover, albumArtist, trackNumber, albumTrackCount, genre);
+		// duration is a getter (number | undefined).
+		try {
+			const d = Number(mi?.duration ?? 0);
 			if (Number.isFinite(d) && d > 0) duration = d;
 		} catch {
 			/* ignore */

@@ -281,6 +281,10 @@ pub fn update_metadata(
     artist: String,
     album: String,
     cover_url: String,
+    album_artist: String,
+    track_number: i32,
+    album_track_count: i32,
+    genre: String,
 ) -> napi::Result<()> {
     let smtc = smtc_for(bound()?).map_err(|e| napi::Error::from_reason(format!("{e:?}")))?;
     win_err((|| {
@@ -290,6 +294,18 @@ pub fn update_metadata(
         music.SetTitle(&HSTRING::from(&title))?;
         music.SetArtist(&HSTRING::from(&artist))?;
         music.SetAlbumTitle(&HSTRING::from(&album))?;
+        if !album_artist.is_empty() {
+            music.SetAlbumArtist(&HSTRING::from(&album_artist))?;
+        }
+        if track_number > 0 {
+            music.SetTrackNumber(track_number as u32)?;
+        }
+        if album_track_count > 0 {
+            music.SetAlbumTrackCount(album_track_count as u32)?;
+        }
+        if !genre.is_empty() {
+            music.Genres()?.Append(&HSTRING::from(&genre))?;
+        }
         if !cover_url.is_empty() {
             let uri = Uri::CreateUri(&HSTRING::from(&cover_url))?;
             let stream = RandomAccessStreamReference::CreateFromUri(&uri)?;

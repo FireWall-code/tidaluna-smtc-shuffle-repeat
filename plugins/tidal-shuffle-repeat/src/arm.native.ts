@@ -21,7 +21,16 @@ interface SmtcNative {
 	};
 	setShuffleState(enabled: boolean): void;
 	setRepeatState(tidalMode: number): void;
-	updateMetadata(title: string, artist: string, album: string, coverUrl: string): void;
+	updateMetadata(
+		title: string,
+		artist: string,
+		album: string,
+		coverUrl: string,
+		albumArtist: string,
+		trackNumber: number,
+		albumTrackCount: number,
+		genre: string,
+	): void;
 	setPlaying(playing: boolean): void;
 	updateTimeline(positionSecs: number, durationSecs: number): void;
 }
@@ -180,9 +189,13 @@ export async function updateMetadata(
 	artist: string,
 	album: string,
 	coverUrl: string,
+	albumArtist: string,
+	trackNumber: number,
+	albumTrackCount: number,
+	genre: string,
 ): Promise<void> {
 	try {
-		load().updateMetadata(title, artist, album, coverUrl);
+		load().updateMetadata(title, artist, album, coverUrl, albumArtist, trackNumber, albumTrackCount, genre);
 	} catch {
 		/* ignore */
 	}
