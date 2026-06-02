@@ -1,18 +1,20 @@
 # tidaluna-smtc-shuffle-repeat
 
 A [TidaLuna](https://github.com/Inrixia/TidaLuna) plugin store containing
-**TIDAL Shuffle & Repeat for Flyouts** — it exposes TIDAL's shuffle and repeat
-to the Windows System Media Transport Controls (SMTC) so media/volume flyouts
-like [FluentFlyout](https://github.com/unchihugo/FluentFlyout) can toggle them.
+**TidalMediaControls** — it gives TIDAL full Windows media controls (transport,
+shuffle, repeat, seek, rich metadata and cover art) through the System Media
+Transport Controls (SMTC), so media/volume flyouts like
+[FluentFlyout](https://github.com/unchihugo/FluentFlyout) and other SMTC consumers
+work fully. Bidirectional sync.
 
 See [`plugins/tidal-shuffle-repeat/README.md`](plugins/tidal-shuffle-repeat/README.md)
 for what it does and how it works.
 
 ## Install (in TidaLuna)
 
-Add this repo's plugin store in TidaLuna, then install **TIDAL Shuffle & Repeat
-for Flyouts** from the Plugin Store. (Pushes to `master` auto-publish the build
-to the `latest` GitHub release via the included workflow.)
+Add this repo's plugin store in TidaLuna, then install **TidalMediaControls**
+from the Plugin Store. (Pushes to `master` auto-publish the build to the `latest`
+GitHub release via the included workflow.)
 
 ## Repo layout
 
