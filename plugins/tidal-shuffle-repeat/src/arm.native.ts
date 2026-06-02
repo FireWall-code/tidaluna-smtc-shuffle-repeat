@@ -3,6 +3,7 @@
 // wrappers the renderer can call over Luna's IPC bridge.
 
 import { execFileSync } from "node:child_process";
+import * as crypto from "node:crypto";
 import { createRequire } from "node:module";
 import * as fs from "node:fs";
 import * as os from "node:os";
@@ -47,7 +48,11 @@ function load(): SmtcNative {
 	const buf = Buffer.from(NATIVE_IA32_BASE64, "base64");
 	const dir = path.join(os.tmpdir(), "smtc-bridge");
 	fs.mkdirSync(dir, { recursive: true });
-	const file = path.join(dir, `smtc-bridge-ia32-${buf.length}.node`);
+	// Name the temp file by a content hash (not byte size): two different builds
+	// can share the same size, and a size-based name would keep loading the stale
+	// file. A hash guarantees new content lands in a new file and is loaded.
+	const hash = crypto.createHash("sha1").update(buf).digest("hex").slice(0, 16);
+	const file = path.join(dir, `smtc-bridge-ia32-${hash}.node`);
 	if (!fs.existsSync(file) || fs.statSync(file).size !== buf.length) {
 		fs.writeFileSync(file, buf);
 	}
