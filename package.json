@@ -1,6 +1,6 @@
 {
-	"name": "tidaluna-smtc-shuffle-repeat",
-	"description": "TidaLuna plugin store: exposes TIDAL shuffle & repeat to the Windows SMTC for media/volume flyouts.",
+	"name": "@FireWall/TidaLuna-Plugins",
+	"description": "FireWall's TidaLuna plugin store.",
 	"type": "module",
 	"scripts": {
 		"watch": "concurrently \"pnpm:build --watch\" pnpm:serve",
