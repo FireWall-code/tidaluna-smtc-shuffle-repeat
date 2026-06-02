@@ -153,6 +153,9 @@ fn arm_inner(hwnd: i64) -> WinResult<()> {
     smtc.SetIsPauseEnabled(true)?;
     smtc.SetIsNextEnabled(true)?;
     smtc.SetIsPreviousEnabled(true)?;
+    smtc.SetIsStopEnabled(true)?;
+    smtc.SetIsFastForwardEnabled(true)?;
+    smtc.SetIsRewindEnabled(true)?;
     smtc.SetShuffleEnabled(false)?;
     smtc.SetAutoRepeatMode(MediaPlaybackAutoRepeatMode::None)?;
 
@@ -187,8 +190,11 @@ fn arm_inner(hwnd: i64) -> WinResult<()> {
                 let name = match a.Button()? {
                     SystemMediaTransportControlsButton::Play => "play",
                     SystemMediaTransportControlsButton::Pause => "pause",
+                    SystemMediaTransportControlsButton::Stop => "stop",
                     SystemMediaTransportControlsButton::Next => "next",
                     SystemMediaTransportControlsButton::Previous => "previous",
+                    SystemMediaTransportControlsButton::FastForward => "fastforward",
+                    SystemMediaTransportControlsButton::Rewind => "rewind",
                     _ => "other",
                 };
                 pending().lock().unwrap().button = Some(name.to_string());

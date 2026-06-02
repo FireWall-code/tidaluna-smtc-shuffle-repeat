@@ -158,9 +158,13 @@ ensureChromiumDisabled()
 			if (req.repeat != null) PlayState.setRepeatMode(req.repeat as never);
 			if (req.position != null) PlayState.seek(req.position);
 			if (req.button === "play") PlayState.play();
-			else if (req.button === "pause") PlayState.pause();
+			else if (req.button === "pause" || req.button === "stop") PlayState.pause();
 			else if (req.button === "next") PlayState.next();
 			else if (req.button === "previous") PlayState.previous();
+			else if (req.button === "fastforward")
+				PlayState.seek(Number((PlayState as any).currentTime ?? 0) + 10);
+			else if (req.button === "rewind")
+				PlayState.seek(Math.max(0, Number((PlayState as any).currentTime ?? 0) - 10));
 		}, 250);
 		unloads.add(() => clearInterval(id));
 	})
