@@ -90,6 +90,8 @@ const pushMetadata = async (mi: any) => {
 		} catch {
 			/* ignore */
 		}
+		// Anchor the timeline for the new track so the seekbar resets cleanly.
+		void updateTimeline(Number((PlayState as any).currentTime ?? 0), duration);
 	} catch (e) {
 		trace.err.withContext("pushMetadata")(e as Error);
 	}
@@ -138,6 +140,13 @@ ensureChromiumDisabled()
 		syncToSmtc();
 		MediaItem.onMediaTransition(unloads, (mi: unknown) => void pushMetadata(mi));
 
+		const now = () => Number((PlayState as any).currentTime ?? 0);
+		let lastTimelinePush = 0;
+		const pushTimeline = () => {
+			void updateTimeline(now(), duration);
+			lastTimelinePush = Date.now();
+		};
+
 		const id = setInterval(async () => {
 			syncToSmtc();
 
@@ -145,8 +154,11 @@ ensureChromiumDisabled()
 			if (playing !== lastPlaying) {
 				lastPlaying = playing;
 				void setPlaying(playing);
+				pushTimeline(); // anchor on play/pause; Windows animates from here
 			}
-			void updateTimeline(Number((PlayState as any).currentTime ?? 0), duration);
+			// Light periodic resync — Windows extrapolates smoothly in between, so
+			// we don't push every tick (that would make the bar stutter).
+			if (playing && Date.now() - lastTimelinePush > 1000) pushTimeline();
 
 			let req;
 			try {
@@ -156,16 +168,25 @@ ensureChromiumDisabled()
 			}
 			if (req.shuffle != null) PlayState.setShuffle(req.shuffle);
 			if (req.repeat != null) PlayState.setRepeatMode(req.repeat as never);
-			if (req.position != null) PlayState.seek(req.position);
+			let seeked = false;
+			if (req.position != null) {
+				PlayState.seek(req.position);
+				seeked = true;
+			}
 			if (req.button === "play") PlayState.play();
 			else if (req.button === "pause" || req.button === "stop") PlayState.pause();
 			else if (req.button === "next") PlayState.next();
 			else if (req.button === "previous") PlayState.previous();
-			else if (req.button === "fastforward")
-				PlayState.seek(Number((PlayState as any).currentTime ?? 0) + 10);
-			else if (req.button === "rewind")
-				PlayState.seek(Math.max(0, Number((PlayState as any).currentTime ?? 0) - 10));
-		}, 250);
+			else if (req.button === "fastforward") {
+				PlayState.seek(now() + 10);
+				seeked = true;
+			} else if (req.button === "rewind") {
+				PlayState.seek(Math.max(0, now() - 10));
+				seeked = true;
+			}
+			// Re-anchor shortly after a seek so the bar snaps to the new position.
+			if (seeked) setTimeout(pushTimeline, 60);
+		}, 100);
 		unloads.add(() => clearInterval(id));
 	})
 	.catch((e) => trace.err.withContext("init")(e));
