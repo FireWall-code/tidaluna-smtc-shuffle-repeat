@@ -230,28 +230,36 @@ const isLiked = async (data: ActionData) => {
 // #endregion
 
 // #region Mutating handlers
+// Play the given items immediately. `playQueue/ADD_NOW` is the atomic action
+// TIDAL dispatches when you click a track to play it; the old
+// playNext()+next()+play() sequence does not reliably engage playback.
+const playNow = (mediaItemIds: string[], type: string, id?: string) => {
+	redux.actions["playQueue/ADD_NOW"]({
+		context: { type, ...(id ? { id } : {}) } as any,
+		mediaItemIds,
+		overwritePlayQueue: true,
+	});
+	redux.actions["playbackControls/PLAY"]();
+};
+
 const playContext = async (data: ActionData) => {
 	const { albumId, playlistId, itemId } = data as Record<string, string>;
 	if (itemId) {
-		PlayState.play(itemId);
+		playNow([String(itemId)], "user");
 		return { played: "track", itemId };
 	}
 	if (albumId) {
 		const items = await TidalApi.albumItems(albumId);
 		const ids = (items ?? []).map((i: any) => String(unwrap(i)?.id)).filter(Boolean);
 		if (!ids.length) return { error: "Album has no playable items" };
-		PlayState.playNext(ids);
-		PlayState.next();
-		PlayState.play();
+		playNow(ids, "album", String(albumId));
 		return { played: "album", albumId, count: ids.length };
 	}
 	if (playlistId) {
 		const res = await TidalApi.playlistItems(playlistId);
 		const ids = (res?.items ?? []).map((i: any) => String(unwrap(i)?.id)).filter(Boolean);
 		if (!ids.length) return { error: "Playlist has no playable items" };
-		PlayState.playNext(ids);
-		PlayState.next();
-		PlayState.play();
+		playNow(ids, "playlist", String(playlistId));
 		return { played: "playlist", playlistId, count: ids.length };
 	}
 	return { error: "Provide itemId, albumId or playlistId" };
