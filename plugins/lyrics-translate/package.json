@@ -1,0 +1,11 @@
+{
+	"name": "TidalLyricsTranslate",
+	"description": "Translate and romanize TIDAL lyrics on the fly: bilingual (original + translation) or replaced lines, synced and unsynced views, auto-translate on track change, per-track caching and a one-click toggle back to the original. Based on vMohammad's translate plugin, rewritten and maintained by FireWall.",
+	"author": {
+		"name": "FireWall",
+		"url": "https://github.com/FireWall-code",
+		"avatarUrl": "https://avatars.githubusercontent.com/u/69877709?v=4"
+	},
+	"main": "./src/index.ts",
+	"type": "module"
+}
